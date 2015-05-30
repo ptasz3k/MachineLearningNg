@@ -81,6 +81,24 @@ end
 
 J = -acc_cost / m;
 
+% regularization
+theta1_reg = 0;
+theta2_reg = 0;
+
+for j = 1:size(Theta1,1)
+  for k = 2:size(Theta1,2)
+    theta1_reg = theta1_reg + Theta1(j,k)^2;  
+  end
+end
+
+for j = 1:size(Theta2,1)
+  for k = 2:size(Theta2,2)
+    theta2_reg = theta2_reg + Theta2(j,k)^2;
+  end
+end
+
+J = J + lambda / (2 * m) * (theta1_reg + theta2_reg);
+
 % -------------------------------------------------------------
 
 % =========================================================================
