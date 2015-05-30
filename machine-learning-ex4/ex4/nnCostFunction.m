@@ -64,15 +64,16 @@ Theta2_grad = zeros(size(Theta2));
 %
 
 % feedforward
-a1 = sigmoid([ones(m, 1), X] * Theta1');
-a2 = sigmoid([ones(m, 1), a1] *Theta2');
-mapped_y = (@(x) eye(10)(:,x))(y);
+z2 = [ones(m, 1), X ] * Theta1';
+a2 = sigmoid(z2);
+a3 = sigmoid([ones(m, 1), a2] *Theta2');
+mapped_y = (@(x) eye(K)(:,x))(y);
 
 % unregularized cost calculation
 acc_cost = 0;
 for i = 1:m
   cur_y = mapped_y(:,i);
-  cur_x = a2(i,:)';
+  cur_x = a3(i,:)';
   for j = 1:K
     cur_cost =  cur_y(j) * log(cur_x(j)) + (1 - cur_y(j)) * log(1 - cur_x(j));
     acc_cost = acc_cost + cur_cost;
@@ -99,6 +100,23 @@ end
 
 J = J + lambda / (2 * m) * (theta1_reg + theta2_reg);
 
+% backpropagation
+for t = 1:m
+  a_1 = [1, X(t,:)];
+  z_2 = a_1 * Theta1';
+  a_2 = sigmoid(z_2);
+  a_2 = [1, a_2];
+  z_3 = a_2 * Theta2';
+  a_3 = sigmoid(z_3);
+  
+  delta3 = (a_3 .- mapped_y'(t,:))';
+  delta2 = Theta2' * delta3 .* sigmoidGradient([1, z_2]');
+  Theta2_grad = Theta2_grad + delta3 * a_2;
+  Theta1_grad = Theta1_grad + delta2(2:end) * a_1;
+end
+
+Theta1_grad = Theta1_grad ./ m;
+Theta2_grad = Theta2_grad ./ m;
 % -------------------------------------------------------------
 
 % =========================================================================
